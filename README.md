@@ -91,6 +91,31 @@ O projeto assume que há um usuário logado interagindo, como não há um sistem
 
 O projeto não contempla o formulário de checkout com os dados do usuário, pagamento e entrega.
 
+## Imagens
+
+- Homepage
+![homepage](docs/images/homepage.png)
+- Swagger CatalogAPI
+![catalog-api](docs/images/catalog-api.png)
+- Banco de dados PostgreSQL
+![postgres](docs/images/postgres.png)
+- Carrinho
+![carrinho](docs/images/carrinho.png)
+- Swagger CartAPI
+![cart-api](docs/images/cart-api.png)
+- Banco de dados Redis
+![redis](docs/images/redis.png)
+- Checkout
+![checkout](docs/images/checkout.png)
+- Pedidos
+![pedidos](docs/images/pedidos.png)
+- Swagger OrderAPI
+![order-api](docs/images/order-api.png)
+- Banco de dados MongoDB
+![mongo](docs/images/mongo.png)
+- Contêineres Docker
+![docker](docs/images/docker.png)
+
 ## Referências
 
 [.NET](https://dotnet.microsoft.com/pt-br/)  
