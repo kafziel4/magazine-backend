@@ -65,7 +65,6 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: mydatabase
       POSTGRES_PASSWORD: 1234567
     ports:
       - 5432:5432
