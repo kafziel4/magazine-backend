@@ -1,43 +1,38 @@
-import {
-  catalog,
-  deleteFromLocalStorage,
-  drawProductCard,
-  readFromLocalStorage,
-  saveToLocalStorage
-} from "./utils";
+import { createOrder, deleteCart, getCart } from "./http-client";
+import { customerIdMock, drawItemCard } from "./utils";
 
-const drawCart = () => {
-  const cart = readFromLocalStorage("cart") ?? [];
-  cart.forEach((p) => 
-    drawProductCard(p.id, "container-checkout-products", p.quantity));
-  drawTotalPrice(cart);
-}
+var form = document.getElementById("form");
 
-const drawTotalPrice = (cart) => {
-  const total = cart.reduce((acc, product) => 
-    acc + catalog.find((p) => p.id === product.id).price * product.quantity,
-    0);
-  document.getElementById("total-price").innerHTML = `Total: $ ${total}`;
-}
-
-const finalizePurchase = (ev) => {
-  ev.preventDefault();
-  const cart = readFromLocalStorage("cart") ?? [];
-  if (cart.length === 0)
+const drawCart = async () => {
+  const cart = await getCart();
+  if (cart === null)
     return;
 
-    const order = {
-      date: new Date(),
-      orderItems: cart
-    }
-    
-    const orderHistory = readFromLocalStorage("history") ?? [];
-    saveToLocalStorage("history", [order, ...orderHistory]);
-    deleteFromLocalStorage("cart");
+  cart.items.forEach((i) => drawItemCard(i, "container-checkout-items"));
+  
+  document.getElementById("total-price").innerHTML = 
+    `Total: $ ${cart.totalPrice}`;
+}  
 
-    window.location.href = "./orders.html";
+const finalizePurchase = async (ev) => {
+  ev.preventDefault();
+  
+  const cart = await getCart();
+  if (cart === null)
+    return;
+ 
+  await createOrder({ customerId: customerIdMock });
+  await deleteCart();
+
+  window.location.href = "./orders.html";
 }
 
-drawCart();
+(async () => {
+  try {
+    await drawCart();
+  } catch (e) {
+    console.log("An error ocurred while running checkout.");
+  }
+})();
 
 document.addEventListener("submit", (ev) => finalizePurchase(ev));

@@ -1,4 +1,5 @@
-import { drawProductCard, readFromLocalStorage } from "./utils";
+import { getOrders } from "./http-client";
+import { drawItemCard } from "./utils";
 
 const createOrderHistory = (order) => {
   const orderElement =
@@ -7,7 +8,7 @@ const createOrderHistory = (order) => {
         .toLocaleDateString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
     </p>
     <section
-      id="order-container-${order.date}"
+      id="order-container-${order.id}"
       class="bg-slate-300 p-3 rounded-md"
     >
     </section>`;
@@ -15,13 +16,13 @@ const createOrderHistory = (order) => {
     const main = document.getElementsByTagName("main")[0];
     main.innerHTML += orderElement;
 
-    order.orderItems.forEach((p) => 
-      drawProductCard(p.id, `order-container-${order.date}`, p.quantity));
+    order.items.forEach((i) => 
+      drawItemCard(i, `order-container-${order.id}`));
 }
 
-const renderOrderHistory = () => {
-  const history = readFromLocalStorage("history");
-  history.forEach((o) => createOrderHistory(o));
+const renderOrderHistory = async () => {
+  const orders = await getOrders();
+  orders.forEach((o) => createOrderHistory(o));
 }
 
 renderOrderHistory();

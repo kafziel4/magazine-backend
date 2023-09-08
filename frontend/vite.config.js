@@ -3,11 +3,6 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "/magazine-intensivao/",
-  plugins: [],
-  resolve: {
-    /*something*/
-  },
   css: {
     postcss: {
       plugins: [tailwindcss],

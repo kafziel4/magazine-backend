@@ -1,0 +1,114 @@
+version: "3.7"
+services:
+  magazine:
+    build:
+      context: ./frontend/
+      args:
+        - CUSTOMER_ID=magazine-user
+        - API_BASE_URL=http://localhost:7198
+    ports:
+      - 4173:80
+
+  catalog:
+    build: ./backend/CatalogAPI/
+    restart: on-failure
+    ports:
+      - 7183:80
+    depends_on:
+      - postgres
+    environment:
+      - ConnectionStrings__CatalogDBConnectionString=Server=postgres;Port=5432;Database=catalog-api;User Id=postgres;Password=1234567;
+
+  cart:
+    build: ./backend/CartAPI/
+    ports:
+      - 7218:80
+    depends_on:
+      - redis
+    environment:
+      - ConnectionStrings__Redis=redis:6379
+      - Services__CatalogAPI=http://catalog:80
+  
+  order:
+    build: ./backend/OrderAPI/
+    ports:
+      - 7186:80
+    depends_on:
+      - mongo
+    environment:
+      - OrdersDatabase__ConnectionString=mongodb://mongo:27017
+      - Services__CartAPI=http://cart:80
+
+  gateway:
+    build: ./backend/APIGateway/
+    ports:
+      - 7198:80
+    environment:
+      - AllowedOrigins=http://localhost:4173
+      - Routes__0__DownstreamScheme=http
+      - Routes__0__DownstreamHostAndPorts__0__Host=catalog
+      - Routes__0__DownstreamHostAndPorts__0__Port=80
+      - Routes__1__DownstreamScheme=http
+      - Routes__1__DownstreamHostAndPorts__0__Host=cart
+      - Routes__1__DownstreamHostAndPorts__0__Port=80
+      - Routes__2__DownstreamScheme=http
+      - Routes__2__DownstreamHostAndPorts__0__Host=cart
+      - Routes__2__DownstreamHostAndPorts__0__Port=80
+      - Routes__3__DownstreamScheme=http
+      - Routes__3__DownstreamHostAndPorts__0__Host=order
+      - Routes__3__DownstreamHostAndPorts__0__Port=80
+      - Routes__4__DownstreamScheme=http
+      - Routes__4__DownstreamHostAndPorts__0__Host=order
+      - Routes__4__DownstreamHostAndPorts__0__Port=80
+      - GlobalConfiguration__BaseUrl=http://gateway:80
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_PASSWORD: 1234567
+    ports:
+      - 5432:5432
+    volumes:
+      - ./.data/postgresql/data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: me@example.com
+      PGADMIN_DEFAULT_PASSWORD: 1234567
+    ports:
+      - 8080:80
+    volumes:
+      - ./.data/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+  
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+
+  redis-commander:
+    image: rediscommander/redis-commander
+    environment:
+      REDIS_HOSTS: "local:redis:6379"
+    ports:
+      - 8081:8081
+
+  mongo:
+    image: mongo:7-jammy
+    ports:
+      - 27017:27017
+    volumes:
+      - ./.data/mongo/db:/data/db
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo:27017/"
+    ports:
+      - 8082:8081
+    depends_on:
+      - mongo

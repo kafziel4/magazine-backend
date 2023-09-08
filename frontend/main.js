@@ -1,9 +1,13 @@
-import { initializeCart, renderCart, updatePrice } from "./src/cart-menu";
-import { initializeFilters } from "./src/catalog-filter";
-import { renderCatalog } from "./src/product-card";
+import { initializeCart, renderCart } from "./src/cart-menu";
+import { initializeFilters, renderCatalog } from "./src/catalog";
 
-renderCatalog();
-initializeCart();
-renderCart();
-updatePrice();
-initializeFilters();
+(async () => {
+  try {
+    await renderCatalog();
+    await initializeCart();
+    renderCart();
+    initializeFilters();
+  } catch (e) {
+    console.log("An error ocurred while running main.");
+  }
+})();
